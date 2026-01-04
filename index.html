@@ -22,7 +22,7 @@ body {
 .overlay {
   background: rgba(0,0,0,0.6);
   min-height: 100%;
-  padding: 30px 30px 0 30px;
+  padding: 30px;
   box-sizing: border-box;
 }
 
@@ -30,7 +30,6 @@ h1 {
   text-align: center;
   font-size: 48px;
   margin-bottom: 30px;
-  animation: fadeIn 0.8s ease;
 }
 
 .box {
@@ -39,7 +38,6 @@ h1 {
   background: rgba(255,255,255,0.1);
   padding: 15px;
   border-radius: 12px;
-  animation: slideUp 0.6s ease;
 }
 
 input, button {
@@ -49,13 +47,16 @@ input, button {
   border: none;
   border-radius: 6px;
   font-size: 16px;
-  box-sizing: border-box;
 }
 
 button {
   background: #1e88e5;
   color: white;
   cursor: pointer;
+}
+
+.hidden-file {
+  display: none;
 }
 
 .grid {
@@ -72,17 +73,17 @@ button {
   text-align: center;
   cursor: grab;
   position: relative;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: transform 0.15s ease;
 }
 
 .tile:hover {
   transform: scale(1.05);
-  background: rgba(0,0,0,0.6);
 }
 
 .tile img {
   width: 48px;
   height: 48px;
+  pointer-events: none;
 }
 
 .tile span {
@@ -101,19 +102,17 @@ button {
   cursor: pointer;
 }
 
-.footer {
-  padding-bottom: 30px;
-  opacity: 0.85;
+/* kleine Einstellungen unten */
+.settings {
+  max-width: 800px;
+  margin: 40px auto 0 auto;
+  font-size: 13px;
+  opacity: 0.75;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0 }
-  to { opacity: 1 }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0 }
-  to { transform: translateY(0); opacity: 1 }
+.settings button {
+  font-size: 13px;
+  background: #555;
 }
 </style>
 </head>
@@ -121,29 +120,42 @@ button {
 <body>
 <div class="overlay">
 
-<h1>Beginnpage</h1>
+<h1>Beginpage</h1>
 
-<!-- Suche -->
+<!-- Google Suche -->
 <div class="box">
   <form onsubmit="searchGoogle(); return false;">
-    <input id="search" placeholder="Bei Google suchen">
+    <input id="search" placeholder="Mit deiner 1. Suche beginnen">
     <button>Suchen</button>
   </form>
 </div>
 
-<!-- Links -->
+<!-- Seiten -->
 <div class="box">
   <input id="urlInput" placeholder="https://example.de">
-  <input type="file" id="iconInput" accept="image/*">
+
+  <input type="file" id="iconInput" class="hidden-file" accept="image/*">
+
+  <button onclick="document.getElementById('iconInput').click()">
+    Icon auswählen (optional)
+  </button>
+
   <button onclick="addUrl()">Seite hinzufügen</button>
+
   <div class="grid" id="grid"></div>
 </div>
 
-<!-- Hintergrund -->
-<div class="box footer">
-  <h3>Hintergrund</h3>
-  <input type="file" accept="image/*" onchange="setBackground(event)">
-  <button onclick="resetBackground()">Hintergrund zurücksetzen</button>
+<!-- Hintergrund klein & sauber -->
+<div class="settings">
+  <div>Hintergrund</div>
+
+  <input type="file" id="bgInput" class="hidden-file" accept="image/*">
+
+  <button onclick="document.getElementById('bgInput').click()">
+    Hintergrund ändern
+  </button>
+
+  <button onclick="resetBackground()">Zurücksetzen</button>
 </div>
 
 </div>
@@ -151,6 +163,11 @@ button {
 <script>
 let draggedIndex = null;
 const grid = document.getElementById("grid");
+const urlInput = document.getElementById("urlInput");
+const iconInput = document.getElementById("iconInput");
+const bgInput = document.getElementById("bgInput");
+
+bgInput.onchange = setBackground;
 
 function loadUrls() {
   const data = JSON.parse(localStorage.getItem("pages") || "[]");
@@ -168,8 +185,7 @@ function loadUrls() {
     tile.onclick = () => window.open(item.url, "_blank");
 
     const img = document.createElement("img");
-    img.src = item.icon || 
-      "https://www.google.com/s2/favicons?domain=" + item.url;
+    img.src = item.icon || "https://www.google.com/s2/favicons?domain=" + item.url;
 
     const label = document.createElement("span");
     label.textContent = new URL(item.url).hostname;
@@ -190,8 +206,8 @@ function loadUrls() {
 }
 
 function addUrl() {
-  const url = document.getElementById("urlInput").value.trim();
-  const iconFile = document.getElementById("iconInput").files[0];
+  const url = urlInput.value.trim();
+  const iconFile = iconInput.files[0];
   if (!url.startsWith("http")) return;
 
   const reader = new FileReader();
@@ -199,8 +215,8 @@ function addUrl() {
     const pages = JSON.parse(localStorage.getItem("pages") || "[]");
     pages.push({ url, icon: iconFile ? reader.result : null });
     localStorage.setItem("pages", JSON.stringify(pages));
-    document.getElementById("urlInput").value = "";
-    document.getElementById("iconInput").value = "";
+    urlInput.value = "";
+    iconInput.value = "";
     loadUrls();
   };
 
@@ -215,10 +231,10 @@ function deleteUrl(index) {
   loadUrls();
 }
 
-function swapItems(targetIndex) {
+function swapItems(target) {
   const pages = JSON.parse(localStorage.getItem("pages"));
-  [pages[draggedIndex], pages[targetIndex]] =
-  [pages[targetIndex], pages[draggedIndex]];
+  [pages[draggedIndex], pages[target]] =
+  [pages[target], pages[draggedIndex]];
   localStorage.setItem("pages", JSON.stringify(pages));
   loadUrls();
 }
