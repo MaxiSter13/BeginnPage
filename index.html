@@ -1,219 +1,254 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Beginnpage</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Beginnpage</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
 
-    body {
-      font-family: Arial, sans-serif;
-      background-size: cover;
-      background-position: center;
-      color: white;
-    }
+body {
+  font-family: Arial, sans-serif;
+  background-size: cover;
+  background-position: center;
+  color: white;
+}
 
-    .overlay {
-      background: rgba(0,0,0,0.6);
-      min-height: 100%;
-      padding: 30px 30px 0 30px;
-      box-sizing: border-box;
-    }
+.overlay {
+  background: rgba(0,0,0,0.6);
+  min-height: 100%;
+  padding: 30px 30px 0 30px;
+  box-sizing: border-box;
+}
 
-    h1 {
-      text-align: center;
-      font-size: 48px;
-      margin: 0 0 30px 0;
-    }
+h1 {
+  text-align: center;
+  font-size: 48px;
+  margin-bottom: 30px;
+  animation: fadeIn 0.8s ease;
+}
 
-    .box {
-      max-width: 700px;
-      margin: 0 auto 25px auto;
-      background: rgba(255,255,255,0.1);
-      padding: 15px;
-      border-radius: 10px;
-    }
+.box {
+  max-width: 800px;
+  margin: 0 auto 25px auto;
+  background: rgba(255,255,255,0.1);
+  padding: 15px;
+  border-radius: 12px;
+  animation: slideUp 0.6s ease;
+}
 
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+input, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
 
-    button {
-      background: #1e88e5;
-      color: white;
-      cursor: pointer;
-    }
+button {
+  background: #1e88e5;
+  color: white;
+  cursor: pointer;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
 
-    .tile {
-      background: rgba(0,0,0,0.4);
-      border-radius: 10px;
-      padding: 10px;
-      text-align: center;
-      position: relative;
-      cursor: pointer;
-    }
+.tile {
+  background: rgba(0,0,0,0.45);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  cursor: grab;
+  position: relative;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
 
-    .tile img {
-      width: 40px;
-      height: 40px;
-    }
+.tile:hover {
+  transform: scale(1.05);
+  background: rgba(0,0,0,0.6);
+}
 
-    .tile span {
-      display: block;
-      font-size: 12px;
-      margin-top: 8px;
-      word-break: break-word;
-    }
+.tile img {
+  width: 48px;
+  height: 48px;
+}
 
-    .delete {
-      position: absolute;
-      top: 4px;
-      right: 6px;
-      color: #ff5252;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.tile span {
+  display: block;
+  font-size: 12px;
+  margin-top: 8px;
+  word-break: break-word;
+}
 
-    .footer {
-      margin-top: 30px;
-      padding-bottom: 30px;
-      opacity: 0.85;
-    }
-  </style>
+.delete {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  color: #ff5252;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.footer {
+  padding-bottom: 30px;
+  opacity: 0.85;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0 }
+  to { transform: translateY(0); opacity: 1 }
+}
+</style>
 </head>
 
 <body>
 <div class="overlay">
 
-  <h1>Beginnpage</h1>
+<h1>Beginnpage</h1>
 
-  <!-- Google Suche -->
-  <div class="box">
-    <form onsubmit="searchGoogle(); return false;">
-      <input id="search" placeholder="Bei Google suchen">
-      <button type="submit">Suchen</button>
-    </form>
-  </div>
+<!-- Suche -->
+<div class="box">
+  <form onsubmit="searchGoogle(); return false;">
+    <input id="search" placeholder="Bei Google suchen">
+    <button>Suchen</button>
+  </form>
+</div>
 
-  <!-- Icons -->
-  <div class="box">
-    <input id="urlInput" placeholder="https://example.de">
-    <button onclick="addUrl()">Seite hinzufügen</button>
-    <div class="grid" id="grid"></div>
-  </div>
+<!-- Links -->
+<div class="box">
+  <input id="urlInput" placeholder="https://example.de">
+  <input type="file" id="iconInput" accept="image/*">
+  <button onclick="addUrl()">Seite hinzufügen</button>
+  <div class="grid" id="grid"></div>
+</div>
 
-  <!-- Hintergrund ganz unten -->
-  <div class="box footer">
-    <h3>Hintergrund</h3>
-    <input type="file" accept="image/*" onchange="setBackground(event)">
-    <button onclick="resetBackground()">Hintergrund zurücksetzen</button>
-  </div>
+<!-- Hintergrund -->
+<div class="box footer">
+  <h3>Hintergrund</h3>
+  <input type="file" accept="image/*" onchange="setBackground(event)">
+  <button onclick="resetBackground()">Hintergrund zurücksetzen</button>
+</div>
 
 </div>
 
 <script>
-  const grid = document.getElementById("grid");
-  const input = document.getElementById("urlInput");
+let draggedIndex = null;
+const grid = document.getElementById("grid");
 
-  function loadUrls() {
-    const urls = JSON.parse(localStorage.getItem("urls") || "[]");
-    grid.innerHTML = "";
+function loadUrls() {
+  const data = JSON.parse(localStorage.getItem("pages") || "[]");
+  grid.innerHTML = "";
 
-    urls.forEach((url, index) => {
-      const tile = document.createElement("div");
-      tile.className = "tile";
-      tile.onclick = () => window.open(url, "_blank");
+  data.forEach((item, index) => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.draggable = true;
 
-      const img = document.createElement("img");
-      img.src = "https://www.google.com/s2/favicons?domain=" + url + "&sz=64";
-      img.onerror = () => img.src =
-        "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><text y='50%' x='50%' text-anchor='middle' font-size='32'>🌐</text></svg>";
+    tile.ondragstart = () => draggedIndex = index;
+    tile.ondragover = e => e.preventDefault();
+    tile.ondrop = () => swapItems(index);
 
-      const label = document.createElement("span");
-      label.textContent = new URL(url).hostname;
+    tile.onclick = () => window.open(item.url, "_blank");
 
-      const del = document.createElement("div");
-      del.textContent = "✕";
-      del.className = "delete";
-      del.onclick = (e) => {
-        e.stopPropagation();
-        deleteUrl(index);
-      };
+    const img = document.createElement("img");
+    img.src = item.icon || 
+      "https://www.google.com/s2/favicons?domain=" + item.url;
 
-      tile.appendChild(del);
-      tile.appendChild(img);
-      tile.appendChild(label);
-      grid.appendChild(tile);
-    });
-  }
+    const label = document.createElement("span");
+    label.textContent = new URL(item.url).hostname;
 
-  function addUrl() {
-    const url = input.value.trim();
-    if (!url.startsWith("http")) return;
-    const urls = JSON.parse(localStorage.getItem("urls") || "[]");
-    urls.push(url);
-    localStorage.setItem("urls", JSON.stringify(urls));
-    input.value = "";
-    loadUrls();
-  }
-
-  function deleteUrl(index) {
-    const urls = JSON.parse(localStorage.getItem("urls") || "[]");
-    urls.splice(index, 1);
-    localStorage.setItem("urls", JSON.stringify(urls));
-    loadUrls();
-  }
-
-  function searchGoogle() {
-    const q = document.getElementById("search").value.trim();
-    if (q) {
-      window.location.href =
-        "https://www.google.com/search?q=" + encodeURIComponent(q);
-    }
-  }
-
-  function setBackground(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      document.body.style.backgroundImage = `url(${reader.result})`;
-      localStorage.setItem("background", reader.result);
+    const del = document.createElement("div");
+    del.textContent = "✕";
+    del.className = "delete";
+    del.onclick = e => {
+      e.stopPropagation();
+      deleteUrl(index);
     };
-    reader.readAsDataURL(file);
-  }
 
-  function loadBackground() {
-    const bg = localStorage.getItem("background");
-    if (bg) document.body.style.backgroundImage = `url(${bg})`;
-  }
+    tile.appendChild(del);
+    tile.appendChild(img);
+    tile.appendChild(label);
+    grid.appendChild(tile);
+  });
+}
 
-  function resetBackground() {
-    localStorage.removeItem("background");
-    document.body.style.backgroundImage = "";
-  }
+function addUrl() {
+  const url = document.getElementById("urlInput").value.trim();
+  const iconFile = document.getElementById("iconInput").files[0];
+  if (!url.startsWith("http")) return;
 
+  const reader = new FileReader();
+  reader.onload = () => {
+    const pages = JSON.parse(localStorage.getItem("pages") || "[]");
+    pages.push({ url, icon: iconFile ? reader.result : null });
+    localStorage.setItem("pages", JSON.stringify(pages));
+    document.getElementById("urlInput").value = "";
+    document.getElementById("iconInput").value = "";
+    loadUrls();
+  };
+
+  if (iconFile) reader.readAsDataURL(iconFile);
+  else reader.onload();
+}
+
+function deleteUrl(index) {
+  const pages = JSON.parse(localStorage.getItem("pages") || "[]");
+  pages.splice(index, 1);
+  localStorage.setItem("pages", JSON.stringify(pages));
   loadUrls();
-  loadBackground();
+}
+
+function swapItems(targetIndex) {
+  const pages = JSON.parse(localStorage.getItem("pages"));
+  [pages[draggedIndex], pages[targetIndex]] =
+  [pages[targetIndex], pages[draggedIndex]];
+  localStorage.setItem("pages", JSON.stringify(pages));
+  loadUrls();
+}
+
+function searchGoogle() {
+  const q = document.getElementById("search").value.trim();
+  if (q) location.href =
+    "https://www.google.com/search?q=" + encodeURIComponent(q);
+}
+
+function setBackground(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.body.style.backgroundImage = `url(${reader.result})`;
+    localStorage.setItem("bg", reader.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetBackground() {
+  localStorage.removeItem("bg");
+  document.body.style.backgroundImage = "";
+}
+
+const bg = localStorage.getItem("bg");
+if (bg) document.body.style.backgroundImage = `url(${bg})`;
+
+loadUrls();
 </script>
 
 </body>
