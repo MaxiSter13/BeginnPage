@@ -50,7 +50,6 @@
       cursor: pointer;
     }
 
-    /* ICON GRID */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -87,6 +86,11 @@
       font-weight: bold;
       cursor: pointer;
     }
+
+    .footer {
+      margin-top: 60px;
+      opacity: 0.8;
+    }
   </style>
 </head>
 
@@ -95,21 +99,24 @@
 
   <h1>Beginnpage</h1>
 
-  <!-- Suche -->
+  <!-- GOOGLE SUCHE -->
   <div class="box">
-    <input id="search" placeholder="Suche im Internet"
-      onkeydown="if(event.key==='Enter') searchGoogle()">
+    <form onsubmit="searchGoogle(); return false;">
+      <input id="search" placeholder="Bei Google suchen">
+      <button type="submit">Suchen</button>
+    </form>
   </div>
 
-  <!-- Links -->
+  <!-- LINKS / ICONS -->
   <div class="box">
     <input id="urlInput" placeholder="https://example.de">
     <button onclick="addUrl()">Seite hinzufügen</button>
     <div class="grid" id="grid"></div>
   </div>
 
-  <!-- Hintergrund -->
-  <div class="box">
+  <!-- HINTERGRUND GANZ UNTEN -->
+  <div class="box footer">
+    <h3>Hintergrund</h3>
     <input type="file" accept="image/*" onchange="setBackground(event)">
     <button onclick="resetBackground()">Hintergrund zurücksetzen</button>
   </div>
@@ -169,6 +176,14 @@
     loadUrls();
   }
 
+  function searchGoogle() {
+    const q = document.getElementById("search").value.trim();
+    if (q !== "") {
+      window.location.href =
+        "https://www.google.com/search?q=" + encodeURIComponent(q);
+    }
+  }
+
   function setBackground(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -188,13 +203,6 @@
   function resetBackground() {
     localStorage.removeItem("background");
     document.body.style.backgroundImage = "";
-  }
-
-  function searchGoogle() {
-    const q = document.getElementById("search").value.trim();
-    if (q) {
-      location.href = "https://www.google.com/search?q=" + encodeURIComponent(q);
-    }
   }
 
   loadUrls();
