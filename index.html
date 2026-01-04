@@ -6,10 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
       font-family: Arial, sans-serif;
-      min-height: 100vh;
       background-size: cover;
       background-position: center;
       color: white;
@@ -17,14 +21,15 @@
 
     .overlay {
       background: rgba(0,0,0,0.6);
-      min-height: 100vh;
-      padding: 30px;
+      min-height: 100%;
+      padding: 30px 30px 0 30px;
+      box-sizing: border-box;
     }
 
     h1 {
       text-align: center;
       font-size: 48px;
-      margin-bottom: 30px;
+      margin: 0 0 30px 0;
     }
 
     .box {
@@ -42,6 +47,7 @@
       border: none;
       border-radius: 6px;
       font-size: 16px;
+      box-sizing: border-box;
     }
 
     button {
@@ -88,8 +94,9 @@
     }
 
     .footer {
-      margin-top: 60px;
-      opacity: 0.8;
+      margin-top: 30px;
+      padding-bottom: 30px;
+      opacity: 0.85;
     }
   </style>
 </head>
@@ -99,7 +106,7 @@
 
   <h1>Beginnpage</h1>
 
-  <!-- GOOGLE SUCHE -->
+  <!-- Google Suche -->
   <div class="box">
     <form onsubmit="searchGoogle(); return false;">
       <input id="search" placeholder="Bei Google suchen">
@@ -107,14 +114,14 @@
     </form>
   </div>
 
-  <!-- LINKS / ICONS -->
+  <!-- Icons -->
   <div class="box">
     <input id="urlInput" placeholder="https://example.de">
     <button onclick="addUrl()">Seite hinzufügen</button>
     <div class="grid" id="grid"></div>
   </div>
 
-  <!-- HINTERGRUND GANZ UNTEN -->
+  <!-- Hintergrund ganz unten -->
   <div class="box footer">
     <h3>Hintergrund</h3>
     <input type="file" accept="image/*" onchange="setBackground(event)">
@@ -178,7 +185,7 @@
 
   function searchGoogle() {
     const q = document.getElementById("search").value.trim();
-    if (q !== "") {
+    if (q) {
       window.location.href =
         "https://www.google.com/search?q=" + encodeURIComponent(q);
     }
