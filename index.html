@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Startseite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: white;
+      padding: 20px;
+    }
+    input, button {
+      padding: 10px;
+      width: 100%;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin-top: 10px;
+    }
+    a {
+      color: #4fc3f7;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Meine Startseite</h1>
+
+<input id="urlInput" placeholder="https://example.de">
+<button onclick="add()">Hinzufügen</button>
+
+<ul id="list"></ul>
+
+<script>
+  const list = document.getElementById("list");
+  const input = document.getElementById("urlInput");
+
+  function load() {
+    const urls = JSON.parse(localStorage.getItem("urls") || "[]");
+    list.innerHTML = "";
+    urls.forEach(u => {
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="${u}" target="_blank">${u}</a>`;
+      list.appendChild(li);
+    });
+  }
+
+  function add() {
+    const url = input.value.trim();
+    if (!url) return;
+    const urls = JSON.parse(localStorage.getItem("urls") || "[]");
+    urls.push(url);
+    localStorage.setItem("urls", JSON.stringify(urls));
+    input.value = "";
+    load();
+  }
+
+  load();
+</script>
+
+</body>
+</html>
