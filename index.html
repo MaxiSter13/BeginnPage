@@ -87,6 +87,7 @@ li a {
   color: #90caf9;
   text-decoration: none;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .delete {
@@ -96,6 +97,7 @@ li a {
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 #suggestions {
@@ -172,11 +174,22 @@ li a {
 </div>
 
 <script>
-/* ---------- SUCHE ---------- */
+/* ---------- SUCHE: VERLAUF + INTERNET ---------- */
 let suggestionsArr = [];
 let selectedIndex = -1;
 
+function getHistory() {
+  return JSON.parse(localStorage.getItem("searchHistory") || "[]");
+}
+
+function saveHistory(q) {
+  let h = getHistory().filter(x => x !== q);
+  h.unshift(q);
+  localStorage.setItem("searchHistory", JSON.stringify(h.slice(0,20)));
+}
+
 function openSearch(q) {
+  saveHistory(q);
   window.open(
     "https://www.google.com/search?q=" + encodeURIComponent(q),
     "_blank"
@@ -190,23 +203,33 @@ function searchGoogle() {
 }
 
 function loadSuggestions() {
-  const q = search.value.trim();
+  const q = search.value.trim().toLowerCase();
   suggestions.innerHTML = "";
   suggestionsArr = [];
   selectedIndex = -1;
   if (!q) return;
 
+  // Verlauf zuerst
+  getHistory()
+    .filter(x => x.toLowerCase().includes(q))
+    .slice(0,4)
+    .forEach(addSuggestion);
+
+  // Internet (DuckDuckGo)
   fetch("https://duckduckgo.com/ac/?q=" + encodeURIComponent(q))
     .then(r => r.json())
     .then(data => {
-      data.slice(0,8).forEach(item => {
-        const d = document.createElement("div");
-        d.textContent = item.phrase;
-        d.onclick = () => openSearch(item.phrase);
-        suggestions.appendChild(d);
-        suggestionsArr.push(item.phrase);
-      });
+      data.forEach(d => addSuggestion(d.phrase));
     });
+}
+
+function addSuggestion(text) {
+  if (suggestionsArr.includes(text) || suggestionsArr.length >= 8) return;
+  suggestionsArr.push(text);
+  const d = document.createElement("div");
+  d.textContent = text;
+  d.onclick = () => openSearch(text);
+  suggestions.appendChild(d);
 }
 
 function handleKey(e) {
@@ -215,7 +238,10 @@ function handleKey(e) {
   if (e.key === "ArrowUp") selectedIndex--;
   if (e.key === "Enter") {
     e.preventDefault();
-    const q = selectedIndex >= 0 ? suggestionsArr[selectedIndex] : search.value;
+    const q =
+      selectedIndex >= 0
+        ? suggestionsArr[selectedIndex]
+        : search.value.trim();
     if (q) openSearch(q);
   }
   selectedIndex = Math.max(0, Math.min(selectedIndex, items.length - 1));
@@ -261,7 +287,7 @@ function addUrl() {
 }
 
 function deleteUrl(i) {
-  const urls = JSON.parse(localStorage.getItem("urls"));
+  const urls = JSON.parse(localStorage.getItem("urls") || "[]");
   urls.splice(i,1);
   localStorage.setItem("urls", JSON.stringify(urls));
   loadUrls();
@@ -288,7 +314,6 @@ function resetBackground() {
 loadUrls();
 const bg = localStorage.getItem("bg");
 if (bg) document.body.style.backgroundImage = `url(${bg})`;
-
 search.focus();
 </script>
 
