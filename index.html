@@ -2,138 +2,122 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Beginpage v1.2</title>
+<title>Beginpage</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 html, body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
-  font-family: Arial, sans-serif;
+  height: 100%;
 }
 
 body {
+  font-family: Arial, sans-serif;
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
   color: white;
+  overflow-x: hidden;
 }
 
 .overlay {
-  min-height: 100vh;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0,0,0,0.6);
+  min-height: 100%;
   padding: 20px;
 }
 
 h1 {
   text-align: center;
-  margin: 0 0 20px;
+  font-size: 44px;
+  margin: 20px 0 30px 0;
 }
 
 .box {
-  max-width: 500px;
-  margin: 15px auto;
-  background: rgba(255,255,255,0.1);
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 25px auto;
+  background: rgba(255,255,255,0.12);
   padding: 15px;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
-input {
+input, button {
   width: 100%;
   padding: 10px;
-  border-radius: 6px;
+  margin-top: 10px;
   border: none;
-  font-size: 15px;
+  border-radius: 6px;
+  font-size: 16px;
 }
 
 button {
-  margin-top: 8px;
-  padding: 10px;
-  width: 100%;
-  border: none;
-  border-radius: 6px;
-  background: #2196f3;
+  background: #1e88e5;
   color: white;
   cursor: pointer;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(0,0,0,0.4);
-  padding: 8px;
-  border-radius: 6px;
-  margin-top: 6px;
-}
-
-li img {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-li a {
-  flex: 1;
-  color: #90caf9;
-  text-decoration: none;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-
-.delete {
-  background: #e53935;
-  border: none;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-#suggestions {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-  background: #111;
-  border-radius: 0 0 10px 10px;
-  overflow: hidden;
-  z-index: 10;
-}
-
-#suggestions div {
-  padding: 8px;
-  cursor: pointer;
-}
-
-#suggestions div:hover {
-  background: #333;
-}
-
-.settings {
-  max-width: 500px;
-  margin: 20px auto 0;
-  text-align: center;
-}
-
-.settings button {
-  width: auto;
-  font-size: 12px;
-  background: #555;
 }
 
 .hidden-file {
   display: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.tile {
+  background: rgba(0,0,0,0.45);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  cursor: grab;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.tile:hover {
+  transform: scale(1.05);
+}
+
+.tile img {
+  width: 46px;
+  height: 46px;
+  pointer-events: none;
+}
+
+.tile span {
+  display: block;
+  font-size: 12px;
+  margin-top: 8px;
+  word-break: break-word;
+}
+
+.delete {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  color: #ff5252;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.settings {
+  width: 100%;
+  max-width: 800px;
+  margin: 35px auto 0 auto;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.settings button {
+  font-size: 13px;
+  background: #555;
 }
 </style>
 </head>
@@ -144,29 +128,35 @@ li a {
 <h1>Beginpage</h1>
 
 <!-- Suche -->
-<div class="box" style="position:relative">
-  <input
-    id="search"
-    placeholder="Mit deiner 1. Suche beginnen"
-    autocomplete="off"
-    oninput="loadSuggestions()"
-    onkeydown="handleKey(event)"
-  >
-  <button onclick="searchGoogle()">Suchen</button>
-  <div id="suggestions"></div>
+<div class="box">
+  <form onsubmit="searchGoogle(); return false;">
+    <input
+      id="search"
+      placeholder="Mit deiner 1. Suche beginnen"
+      autofocus
+    >
+    <button>Suchen</button>
+  </form>
 </div>
 
-<!-- Eigene Seiten -->
+<!-- Seiten -->
 <div class="box">
-  <h3>Eigene Seiten</h3>
   <input id="urlInput" placeholder="https://example.de">
-  <button onclick="addUrl()">Hinzufügen</button>
-  <ul id="urlList"></ul>
+
+  <input type="file" id="iconInput" class="hidden-file" accept="image/*">
+
+  <button onclick="iconInput.click()">Icon auswählen (optional)</button>
+  <button onclick="addUrl()">Seite hinzufügen</button>
+
+  <div class="grid" id="grid"></div>
 </div>
 
 <!-- Hintergrund -->
 <div class="settings">
-  <input type="file" id="bgInput" class="hidden-file" accept="image/*" onchange="setBackground(event)">
+  <div>Hintergrund</div>
+
+  <input type="file" id="bgInput" class="hidden-file" accept="image/*">
+
   <button onclick="bgInput.click()">Hintergrund ändern</button>
   <button onclick="resetBackground()">Zurücksetzen</button>
 </div>
@@ -174,139 +164,109 @@ li a {
 </div>
 
 <script>
-/* ---------- SUCHE: VERLAUF + INTERNET ---------- */
-let suggestionsArr = [];
-let selectedIndex = -1;
+let draggedIndex = null;
+const grid = document.getElementById("grid");
+const urlInput = document.getElementById("urlInput");
+const iconInput = document.getElementById("iconInput");
+const bgInput = document.getElementById("bgInput");
 
-function getHistory() {
-  return JSON.parse(localStorage.getItem("searchHistory") || "[]");
+bgInput.onchange = setBackground;
+
+/* Seiten laden */
+function loadUrls() {
+  const data = JSON.parse(localStorage.getItem("pages") || "[]");
+  grid.innerHTML = "";
+
+  data.forEach((item, index) => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.draggable = true;
+
+    tile.ondragstart = () => draggedIndex = index;
+    tile.ondragover = e => e.preventDefault();
+    tile.ondrop = () => swapItems(index);
+
+    tile.onclick = () => window.open(item.url, "_blank");
+
+    const img = document.createElement("img");
+    img.src = item.icon || "https://www.google.com/s2/favicons?domain=" + item.url;
+
+    const label = document.createElement("span");
+    label.textContent = new URL(item.url).hostname;
+
+    const del = document.createElement("div");
+    del.textContent = "✕";
+    del.className = "delete";
+    del.onclick = e => {
+      e.stopPropagation();
+      deleteUrl(index);
+    };
+
+    tile.appendChild(del);
+    tile.appendChild(img);
+    tile.appendChild(label);
+    grid.appendChild(tile);
+  });
 }
 
-function saveHistory(q) {
-  let h = getHistory().filter(x => x !== q);
-  h.unshift(q);
-  localStorage.setItem("searchHistory", JSON.stringify(h.slice(0,20)));
+/* Seite hinzufügen */
+function addUrl() {
+  const url = urlInput.value.trim();
+  const iconFile = iconInput.files[0];
+  if (!url.startsWith("http")) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const pages = JSON.parse(localStorage.getItem("pages") || "[]");
+    pages.push({ url, icon: iconFile ? reader.result : null });
+    localStorage.setItem("pages", JSON.stringify(pages));
+    urlInput.value = "";
+    iconInput.value = "";
+    loadUrls();
+  };
+
+  if (iconFile) reader.readAsDataURL(iconFile);
+  else reader.onload();
 }
 
-function openSearch(q) {
-  saveHistory(q);
+/* Löschen */
+function deleteUrl(index) {
+  const pages = JSON.parse(localStorage.getItem("pages") || "[]");
+  pages.splice(index, 1);
+  localStorage.setItem("pages", JSON.stringify(pages));
+  loadUrls();
+}
+
+/* Drag & Drop */
+function swapItems(target) {
+  const pages = JSON.parse(localStorage.getItem("pages"));
+  [pages[draggedIndex], pages[target]] =
+  [pages[target], pages[draggedIndex]];
+  localStorage.setItem("pages", JSON.stringify(pages));
+  loadUrls();
+}
+
+/* Google Suche – neues Fenster */
+function searchGoogle() {
+  const q = document.getElementById("search").value.trim();
+  if (!q) return;
+
   window.open(
     "https://www.google.com/search?q=" + encodeURIComponent(q),
     "_blank"
   );
-  suggestions.innerHTML = "";
 }
 
-function searchGoogle() {
-  const q = search.value.trim();
-  if (q) openSearch(q);
-}
-
-function loadSuggestions() {
-  const q = search.value.trim().toLowerCase();
-  suggestions.innerHTML = "";
-  suggestionsArr = [];
-  selectedIndex = -1;
-  if (!q) return;
-
-  // Verlauf zuerst
-  getHistory()
-    .filter(x => x.toLowerCase().includes(q))
-    .slice(0,4)
-    .forEach(addSuggestion);
-
-  // Internet (DuckDuckGo)
-  fetch(
-  "https://suggestqueries.google.com/complete/search?client=firefox&q="
-  + encodeURIComponent(q)
-)
-.then(r => r.json())
-.then(data => {
-  data[1].forEach(text => addSuggestion(text));
-});
-
-}
-
-function addSuggestion(text) {
-  if (suggestionsArr.includes(text) || suggestionsArr.length >= 8) return;
-  suggestionsArr.push(text);
-  const d = document.createElement("div");
-  d.textContent = text;
-  d.onclick = () => openSearch(text);
-  suggestions.appendChild(d);
-}
-
-function handleKey(e) {
-  const items = suggestions.children;
-  if (e.key === "ArrowDown") selectedIndex++;
-  if (e.key === "ArrowUp") selectedIndex--;
-  if (e.key === "Enter") {
-    e.preventDefault();
-    const q =
-      selectedIndex >= 0
-        ? suggestionsArr[selectedIndex]
-        : search.value.trim();
-    if (q) openSearch(q);
-  }
-  selectedIndex = Math.max(0, Math.min(selectedIndex, items.length - 1));
-}
-
-/* ---------- EIGENE SEITEN MIT ICONS ---------- */
-function loadUrls() {
-  urlList.innerHTML = "";
-  const urls = JSON.parse(localStorage.getItem("urls") || "[]");
-
-  urls.forEach((u, i) => {
-    const li = document.createElement("li");
-
-    const img = document.createElement("img");
-    img.src = "https://www.google.com/s2/favicons?domain=" + u;
-    img.onerror = () => img.style.display = "none";
-
-    const a = document.createElement("a");
-    a.href = u;
-    a.target = "_blank";
-    a.textContent = u;
-
-    const b = document.createElement("button");
-    b.textContent = "X";
-    b.className = "delete";
-    b.onclick = () => deleteUrl(i);
-
-    li.appendChild(img);
-    li.appendChild(a);
-    li.appendChild(b);
-    urlList.appendChild(li);
-  });
-}
-
-function addUrl() {
-  const u = urlInput.value.trim();
-  if (!u) return;
-  const urls = JSON.parse(localStorage.getItem("urls") || "[]");
-  urls.push(u);
-  localStorage.setItem("urls", JSON.stringify(urls));
-  urlInput.value = "";
-  loadUrls();
-}
-
-function deleteUrl(i) {
-  const urls = JSON.parse(localStorage.getItem("urls") || "[]");
-  urls.splice(i,1);
-  localStorage.setItem("urls", JSON.stringify(urls));
-  loadUrls();
-}
-
-/* ---------- HINTERGRUND ---------- */
+/* Hintergrund */
 function setBackground(e) {
-  const f = e.target.files[0];
-  if (!f) return;
-  const r = new FileReader();
-  r.onload = () => {
-    document.body.style.backgroundImage = `url(${r.result})`;
-    localStorage.setItem("bg", r.result);
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.body.style.backgroundImage = `url(${reader.result})`;
+    localStorage.setItem("bg", reader.result);
   };
-  r.readAsDataURL(f);
+  reader.readAsDataURL(file);
 }
 
 function resetBackground() {
@@ -314,13 +274,12 @@ function resetBackground() {
   document.body.style.backgroundImage = "";
 }
 
-/* ---------- INIT ---------- */
-loadUrls();
+/* Hintergrund laden */
 const bg = localStorage.getItem("bg");
 if (bg) document.body.style.backgroundImage = `url(${bg})`;
-search.focus();
+
+loadUrls();
 </script>
 
 </body>
 </html>
-<!-- build: 2026-01-04 -->
