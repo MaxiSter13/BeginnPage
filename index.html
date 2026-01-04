@@ -216,11 +216,15 @@ function loadSuggestions() {
     .forEach(addSuggestion);
 
   // Internet (DuckDuckGo)
-  fetch("https://duckduckgo.com/ac/?q=" + encodeURIComponent(q))
-    .then(r => r.json())
-    .then(data => {
-      data.forEach(d => addSuggestion(d.phrase));
-    });
+  fetch(
+  "https://suggestqueries.google.com/complete/search?client=firefox&q="
+  + encodeURIComponent(q)
+)
+.then(r => r.json())
+.then(data => {
+  data[1].forEach(text => addSuggestion(text));
+});
+
 }
 
 function addSuggestion(text) {
