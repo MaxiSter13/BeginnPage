@@ -13,21 +13,20 @@
   --overlay:rgba(0,0,0,.6);
   --box:rgba(40,40,40,.9);
   --text:#fff;
-  --input-bg:#222;
+  --input:#222;
 }
-
 body.light{
   --bg:#f2f2f2;
-  --overlay:rgba(255,255,255,.8);
+  --overlay:rgba(255,255,255,.85);
   --box:#fff;
   --text:#000;
-  --input-bg:#fff;
+  --input:#fff;
 }
 
 html,body{
   margin:0;
   padding:0;
-  height:100%;
+  min-height:100%;
   font-family:Arial,sans-serif;
   background:var(--bg);
   color:var(--text);
@@ -63,11 +62,10 @@ input,button{
   margin-top:8px;
   border-radius:6px;
   font-size:14px;
-  background:var(--input-bg);
+  background:var(--input);
   color:var(--text);
   border:none;
 }
-
 body.light input,
 body.light button{
   border:1px solid #000;
@@ -75,7 +73,7 @@ body.light button{
 
 button{
   background:#2196f3;
-  color:white;
+  color:#fff;
   cursor:pointer;
 }
 
@@ -98,18 +96,16 @@ a{color:#2196f3;text-decoration:none;flex:1}
   background:#e53935;
   padding:4px 8px;
   border-radius:4px;
-  border:none;
 }
 
 .icon{
   width:22px;
   height:22px;
   border-radius:4px;
-  object-fit:cover;
 }
 
-/* File Inputs verstecken */
-input[type="file"]{display:none}
+/* file input verstecken */
+input[type=file]{display:none}
 .fileBtn{
   display:block;
   background:#333;
@@ -229,7 +225,7 @@ body.light .menu{background:#fff}
   </div>
 
   <div class="box">
-    <h2>Hintergrund</h2>
+    <h2>🖼️ Hintergrund</h2>
     <label class="fileBtn">
       Hintergrund auswählen
       <input type="file" accept="image/*" onchange="setBg(event)">
@@ -246,15 +242,15 @@ const hamburger=document.querySelector(".hamburger");
 const title=document.getElementById("title");
 
 const pages={
-  home:home,
-  history:history,
-  settings:settings
+  home:document.getElementById("home"),
+  history:document.getElementById("history"),
+  settings:document.getElementById("settings")
 };
 
 function toggleMenu(){
-  const o=menu.classList.toggle("open");
-  backdrop.classList.toggle("show",o);
-  hamburger.classList.toggle("open",o);
+  const open=menu.classList.toggle("open");
+  backdrop.classList.toggle("show",open);
+  hamburger.classList.toggle("open",open);
 }
 function closeMenu(){
   menu.classList.remove("open");
@@ -262,9 +258,10 @@ function closeMenu(){
   hamburger.classList.remove("open");
 }
 function showPage(p){
-  Object.keys(pages).forEach(k=>pages[k].classList.toggle("hidden",k!==p));
+  Object.values(pages).forEach(v=>v.classList.add("hidden"));
+  pages[p].classList.remove("hidden");
   title.textContent=p==="history"?"Verlauf":"Beginpage";
-  closeMenu();
+  closeMenu();               // ← FIX: Menü schließt immer
   if(p==="history") loadHistory();
 }
 
