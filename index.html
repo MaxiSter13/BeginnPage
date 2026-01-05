@@ -6,30 +6,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+:root{
+  --bg:#111;
+  --overlay:rgba(0,0,0,.6);
+  --box:rgba(40,40,40,.9);
+  --text:#fff;
+}
+body.light{
+  --bg:#f2f2f2;
+  --overlay:rgba(255,255,255,.7);
+  --box:#fff;
+  --text:#000;
+}
+
 html,body{
   margin:0;
   padding:0;
   min-height:100%;
-  background:#111;
   font-family:Arial,sans-serif;
-  color:#fff;
+  background:var(--bg);
+  color:var(--text);
   overflow-x:hidden;
 }
+
 body{
   background-size:cover;
   background-position:center;
 }
+
 .overlay{
   min-height:100vh;
   padding:80px 20px 20px;
-  background:rgba(0,0,0,.6);
+  background:var(--overlay);
 }
+
 h1{text-align:center;margin:0 0 25px}
 h2{margin:0 0 10px}
 .hidden{display:none}
 
 .box{
-  background:rgba(40,40,40,.9);
+  background:var(--box);
   border-radius:10px;
   padding:15px;
   max-width:600px;
@@ -63,7 +79,9 @@ li{
   gap:8px;
 }
 
-a{color:#90caf9;text-decoration:none;flex:1}
+body.light li{background:#eee}
+
+a{color:#2196f3;text-decoration:none;flex:1}
 
 .delete{
   background:#e53935;
@@ -75,10 +93,9 @@ a{color:#90caf9;text-decoration:none;flex:1}
   width:22px;
   height:22px;
   border-radius:4px;
-  object-fit:cover;
 }
 
-/* File Inputs verstecken */
+/* file input verstecken */
 input[type="file"]{display:none}
 .fileBtn{
   display:block;
@@ -89,6 +106,7 @@ input[type="file"]{display:none}
   cursor:pointer;
   text-align:center;
 }
+body.light .fileBtn{background:#ddd}
 
 /* Menü */
 .hamburger{
@@ -104,7 +122,7 @@ input[type="file"]{display:none}
   position:absolute;
   width:100%;
   height:3px;
-  background:white;
+  background:var(--text);
   transition:.25s;
 }
 .hamburger span:nth-child(1){top:0}
@@ -126,11 +144,14 @@ input[type="file"]{display:none}
   transition:.25s;
   z-index:1001;
 }
+body.light .menu{background:#fff}
 .menu.open{transform:translateX(0)}
 .menu button{
   background:none;
+  color:var(--text);
   text-align:left;
-  margin-bottom:10px;
+  margin-bottom:12px;
+  font-size:16px;
 }
 
 .backdrop{
@@ -151,9 +172,9 @@ input[type="file"]{display:none}
 </div>
 
 <div class="menu" id="menu">
-  <button onclick="showPage('home')">Startseite</button>
-  <button onclick="showPage('history')">Verlauf</button>
-  <button onclick="showPage('bg')">Hintergrund</button>
+  <button onclick="showPage('home')">🏠 Startseite</button>
+  <button onclick="showPage('history')">🕘 Verlauf</button>
+  <button onclick="showPage('settings')">⚙️ Einstellungen</button>
 </div>
 <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
 
@@ -164,7 +185,7 @@ input[type="file"]{display:none}
 <div id="home">
   <div class="box">
     <input id="searchInput" placeholder="Mit deiner 1. Suche beginnen">
-    <button onclick="doSearch()">Suchen</button>
+    <button onclick="doSearch()">🔍 Suchen</button>
   </div>
 
   <div class="box">
@@ -173,11 +194,11 @@ input[type="file"]{display:none}
     <input id="siteUrl" placeholder="https://">
 
     <label class="fileBtn">
-      Icon auswählen (optional)
+      🖼️ Icon auswählen (optional)
       <input id="iconFile" type="file" accept="image/*">
     </label>
 
-    <button onclick="addSite()">Hinzufügen</button>
+    <button onclick="addSite()">➕ Hinzufügen</button>
     <ul id="sites"></ul>
   </div>
 </div>
@@ -187,10 +208,15 @@ input[type="file"]{display:none}
   <div class="box" id="historyList"></div>
 </div>
 
-<!-- HINTERGRUND -->
-<div id="bg" class="hidden">
+<!-- EINSTELLUNGEN -->
+<div id="settings" class="hidden">
   <div class="box">
-    <h2>Hintergrund</h2>
+    <h2>🌗 Design</h2>
+    <button onclick="toggleTheme()">Dark / Light wechseln</button>
+  </div>
+
+  <div class="box">
+    <h2>🖼️ Hintergrund</h2>
     <label class="fileBtn">
       Hintergrund auswählen
       <input type="file" accept="image/*" onchange="setBg(event)">
@@ -198,6 +224,7 @@ input[type="file"]{display:none}
     <button onclick="resetBg()">Zurücksetzen</button>
   </div>
 </div>
+
 </div>
 
 <script>
@@ -209,7 +236,7 @@ const title=document.getElementById("title");
 const pages={
   home:document.getElementById("home"),
   history:document.getElementById("history"),
-  bg:document.getElementById("bg")
+  settings:document.getElementById("settings")
 };
 
 function toggleMenu(){
@@ -233,11 +260,9 @@ function showPage(p){
 function doSearch(){
   const q=document.getElementById("searchInput").value.trim();
   if(!q)return;
-
   const h=JSON.parse(localStorage.getItem("history")||"[]");
-  h.push({q});
+  h.push(q);
   localStorage.setItem("history",JSON.stringify(h));
-
   window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
 }
 
@@ -247,62 +272,61 @@ function loadHistory(){
   const h=JSON.parse(localStorage.getItem("history")||"[]");
   box.innerHTML=h.length?"":"Noch kein Verlauf.";
   h.slice().reverse().forEach(e=>{
-    box.innerHTML+=`<li>${e.q}</li>`;
+    box.innerHTML+=`<li>${e}</li>`;
   });
 }
 
 /* Eigene Seiten */
 function addSite(){
-  const n=document.getElementById("siteName").value.trim();
-  const u=document.getElementById("siteUrl").value.trim();
+  const n=siteName.value.trim();
+  const u=siteUrl.value.trim();
   if(!n||!u)return;
-
-  const f=document.getElementById("iconFile").files[0];
+  const f=iconFile.files[0];
   if(f){
     const r=new FileReader();
     r.onload=()=>saveSite(n,u,r.result);
     r.readAsDataURL(f);
-  }else{
-    saveSite(n,u,"");
-  }
+  }else saveSite(n,u,"");
 }
 
 function saveSite(n,u,i){
   let icon=i;
   if(!icon){
     try{
-      const d=new URL(u).hostname;
-      icon="https://www.google.com/s2/favicons?domain="+d;
-    }catch{icon=""}
+      icon="https://www.google.com/s2/favicons?domain="+new URL(u).hostname;
+    }catch{}
   }
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
   s.push({n,u,i:icon});
   localStorage.setItem("sites",JSON.stringify(s));
-  document.getElementById("siteName").value="";
-  document.getElementById("siteUrl").value="";
-  document.getElementById("iconFile").value="";
+  siteName.value=siteUrl.value=iconFile.value="";
   loadSites();
 }
 
 function loadSites(){
-  const ul=document.getElementById("sites");
-  ul.innerHTML="";
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  s.forEach((e,idx)=>{
-    ul.innerHTML+=`
-      <li>
-        <img class="icon" src="${e.i}">
-        <a href="${e.u}" target="_blank">${e.n}</a>
-        <button class="delete" onclick="deleteSite(${idx})">X</button>
-      </li>`;
+  sites.innerHTML="";
+  JSON.parse(localStorage.getItem("sites")||"[]")
+  .forEach((e,i)=>{
+    sites.innerHTML+=`
+    <li>
+      <img class="icon" src="${e.i}">
+      <a href="${e.u}" target="_blank">${e.n}</a>
+      <button class="delete" onclick="deleteSite(${i})">X</button>
+    </li>`;
   });
 }
-
 function deleteSite(i){
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
+  const s=JSON.parse(localStorage.getItem("sites"));
   s.splice(i,1);
   localStorage.setItem("sites",JSON.stringify(s));
   loadSites();
+}
+
+/* Theme */
+function toggleTheme(){
+  document.body.classList.toggle("light");
+  localStorage.setItem("theme",
+    document.body.classList.contains("light")?"light":"dark");
 }
 
 /* Hintergrund */
@@ -319,9 +343,12 @@ function resetBg(){
   document.body.style.backgroundImage="";
 }
 
+/* Init */
 loadSites();
-const bg=localStorage.getItem("bg");
-if(bg)document.body.style.backgroundImage=`url(${bg})`;
+if(localStorage.getItem("bg"))
+  document.body.style.backgroundImage=`url(${localStorage.getItem("bg")})`;
+if(localStorage.getItem("theme")==="light")
+  document.body.classList.add("light");
 </script>
 
 </body>
