@@ -81,10 +81,8 @@ a{color:#90caf9;text-decoration:none;flex:1}
   border-radius:4px;
 }
 
-/* File-Inputs komplett verstecken */
+/* File Inputs verstecken */
 input[type="file"]{display:none}
-
-/* Eigene File-Buttons */
 .fileBtn{
   display:block;
   background:#333;
@@ -94,7 +92,6 @@ input[type="file"]{display:none}
   cursor:pointer;
   text-align:center;
 }
-.fileBtn:hover{background:#444}
 
 /* Menü */
 .hamburger{
@@ -169,17 +166,17 @@ input[type="file"]{display:none}
 <!-- START -->
 <div id="home">
   <div class="box">
-    <input id="search" placeholder="Mit deiner 1. Suche beginnen"
+    <input id="searchInput" placeholder="Mit deiner 1. Suche beginnen"
       onkeydown="if(event.key==='Enter')doSearch()">
   </div>
 
   <div class="box">
     <h2>Eigene Seiten</h2>
-    <input id="name" placeholder="Name">
-    <input id="url" placeholder="https://">
+    <input id="siteName" placeholder="Name">
+    <input id="siteUrl" placeholder="https://">
 
     <label class="fileBtn">
-      Icon auswählen
+      Icon auswählen (optional)
       <input id="iconFile" type="file" accept="image/*">
     </label>
 
@@ -235,72 +232,71 @@ function showPage(p){
   if(p==="history") loadHistory();
 }
 
-/* Suche */
+/* GOOGLE SUCHE – FIX */
 function doSearch(){
-  const q=search.value.trim();
+  const q=document.getElementById("searchInput").value.trim();
   if(!q)return;
+
   const h=JSON.parse(localStorage.getItem("history")||"[]");
   h.push({q,date:new Date().toLocaleDateString()});
   localStorage.setItem("history",JSON.stringify(h));
-  window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
+
+  window.open(
+    "https://www.google.com/search?q="+encodeURIComponent(q),
+    "_blank"
+  );
 }
 
-/* Verlauf */
+/* VERLAUF */
 function loadHistory(){
   const box=document.getElementById("historyList");
   const h=JSON.parse(localStorage.getItem("history")||"[]");
   box.innerHTML=h.length?"":"Noch kein Verlauf.";
   h.slice().reverse().forEach((e,i)=>{
-    box.innerHTML+=`<li>${e.q}<button class="delete" onclick="delHist(${h.length-1-i})">X</button></li>`;
+    box.innerHTML+=`<li>${e.q}</li>`;
   });
 }
-function delHist(i){
-  const h=JSON.parse(localStorage.getItem("history")||"[]");
-  h.splice(i,1);
-  localStorage.setItem("history",JSON.stringify(h));
-  loadHistory();
-}
 
-/* Eigene Seiten */
+/* EIGENE SEITEN – FIX */
 function addSite(){
-  const n=name.value.trim();
-  const u=url.value.trim();
+  const n=document.getElementById("siteName").value.trim();
+  const u=document.getElementById("siteUrl").value.trim();
   if(!n||!u)return;
 
-  const f=iconFile.files[0];
-  if(f){
+  const file=document.getElementById("iconFile").files[0];
+  if(file){
     const r=new FileReader();
     r.onload=()=>saveSite(n,u,r.result);
-    r.readAsDataURL(f);
-  }else saveSite(n,u,"");
+    r.readAsDataURL(file);
+  }else{
+    saveSite(n,u,"");
+  }
 }
+
 function saveSite(n,u,i){
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
   s.push({n,u,i});
   localStorage.setItem("sites",JSON.stringify(s));
-  name.value=url.value=iconFile.value="";
-  loadSites();
-}
-function loadSites(){
-  sites.innerHTML="";
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  s.forEach((e,i)=>{
-    sites.innerHTML+=`
-      <li>
-        ${e.i?`<img class="icon" src="${e.i}">`:""}
-        <a href="${e.u}" target="_blank">${e.n}</a>
-        <button class="delete" onclick="delSite(${i})">X</button>
-      </li>`;
-  });
-}
-function delSite(i){
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  s.splice(i,1);
-  localStorage.setItem("sites",JSON.stringify(s));
+  document.getElementById("siteName").value="";
+  document.getElementById("siteUrl").value="";
+  document.getElementById("iconFile").value="";
   loadSites();
 }
 
-/* Hintergrund */
+function loadSites(){
+  const ul=document.getElementById("sites");
+  ul.innerHTML="";
+  const s=JSON.parse(localStorage.getItem("sites")||"[]");
+  s.forEach(e=>{
+    ul.innerHTML+=`
+      <li>
+        ${e.i?`<img class="icon" src="${e.i}">`:""}
+        <a href="${e.u}" target="_blank">${e.n}</a>
+      </li>`;
+  });
+}
+
+/* HINTERGRUND */
 function setBg(e){
   const r=new FileReader();
   r.onload=()=>{
