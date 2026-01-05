@@ -22,6 +22,7 @@ body {
   color: white;
 }
 
+/* Overlay */
 .overlay {
   position: fixed;
   inset: 0;
@@ -30,28 +31,68 @@ body {
   padding: 20px;
 }
 
+/* Hamburger */
+.hamburger {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  font-size: 26px;
+  cursor: pointer;
+  z-index: 1002;
+}
+
+/* Backdrop */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  z-index: 1000;
+}
+
+.backdrop.show {
+  display: block;
+}
+
+/* Menü */
 .menu {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 25px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  padding: 70px 20px;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  z-index: 1001;
+}
+
+.menu.open {
+  transform: translateX(0);
 }
 
 .menu button {
-  background: #333;
-  border-radius: 20px;
-  padding: 8px 18px;
-  font-size: 14px;
-}
-
-.menu button.active {
+  width: 100%;
+  margin-bottom: 15px;
   background: #1e88e5;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
+.menu span.icon {
+  font-size: 18px;
+}
+
+/* Content */
 h1 {
   text-align: center;
   font-size: 42px;
-  margin: 10px 0 30px 0;
+  margin: 20px 0 30px 0;
 }
 
 .box {
@@ -132,41 +173,46 @@ button {
 
 <body>
 
+<div class="hamburger" onclick="openMenu()">☰</div>
+<div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
+
+<div class="menu" id="menu">
+  <button onclick="showPage('home')">
+    <span class="icon">🏠</span> Startseite
+  </button>
+  <button onclick="showPage('history')">
+    <span class="icon">🕘</span> Verlauf
+  </button>
+</div>
+
 <div class="overlay">
 
 <h1>Beginpage</h1>
 
-<div class="menu">
-  <button id="btnHome" class="active" onclick="showPage('home')">Startseite</button>
-  <button id="btnHistory" onclick="showPage('history')">Verlauf</button>
-</div>
-
 <!-- STARTSEITE -->
 <div id="home">
 
-<div class="box">
-  <form onsubmit="searchGoogle(); return false;">
-    <input id="search" placeholder="Mit deiner 1. Suche beginnen" autofocus>
-    <button>Suchen</button>
-  </form>
-</div>
+  <div class="box">
+    <form onsubmit="searchGoogle(); return false;">
+      <input id="search" placeholder="Mit deiner 1. Suche beginnen" autofocus>
+      <button>Suchen</button>
+    </form>
+  </div>
 
-<div class="box">
-  <input id="urlInput" placeholder="https://example.de">
-  <input type="file" id="iconInput" class="hidden-file" accept="image/*">
+  <div class="box">
+    <input id="urlInput" placeholder="https://example.de">
+    <input type="file" id="iconInput" class="hidden-file" accept="image/*">
+    <button onclick="iconInput.click()">Icon auswählen </button>
+    <button onclick="addUrl()">Seite hinzufügen</button>
+    <div class="grid" id="grid"></div>
+  </div>
 
-  <button onclick="iconInput.click()">Icon auswählen </button>
-  <button onclick="addUrl()">Seite hinzufügen</button>
-
-  <div class="grid" id="grid"></div>
-</div>
-
-<div class="settings">
-  <div>Hintergrund</div>
-  <input type="file" id="bgInput" class="hidden-file" accept="image/*">
-  <button onclick="bgInput.click()">Hintergrund ändern</button>
-  <button onclick="resetBackground()">Zurücksetzen</button>
-</div>
+  <div class="settings">
+    <div>Hintergrund</div>
+    <input type="file" id="bgInput" class="hidden-file" accept="image/*">
+    <button onclick="bgInput.click()">Hintergrund ändern</button>
+    <button onclick="resetBackground()">Zurücksetzen</button>
+  </div>
 
 </div>
 
@@ -182,14 +228,25 @@ button {
 </div>
 
 <script>
+const menu = document.getElementById("menu");
+const backdrop = document.getElementById("backdrop");
 const grid = document.getElementById("grid");
 const historyList = document.getElementById("historyList");
 
+function openMenu() {
+  menu.classList.add("open");
+  backdrop.classList.add("show");
+}
+
+function closeMenu() {
+  menu.classList.remove("open");
+  backdrop.classList.remove("show");
+}
+
 function showPage(page) {
-  document.getElementById("home").style.display = page === "home" ? "block" : "none";
-  document.getElementById("history").style.display = page === "history" ? "block" : "none";
-  btnHome.classList.toggle("active", page === "home");
-  btnHistory.classList.toggle("active", page === "history");
+  home.style.display = page === "home" ? "block" : "none";
+  history.style.display = page === "history" ? "block" : "none";
+  closeMenu();
   if (page === "history") loadHistory();
 }
 
@@ -197,25 +254,27 @@ function searchGoogle() {
   const q = search.value.trim();
   if (!q) return;
 
-  const history = JSON.parse(localStorage.getItem("history") || "[]");
-  history.unshift({ q, time: new Date().toLocaleString() });
-  localStorage.setItem("history", JSON.stringify(history));
+  const h = JSON.parse(localStorage.getItem("history") || "[]");
+  h.unshift({ q, t: new Date().toLocaleString() });
+  localStorage.setItem("history", JSON.stringify(h));
 
-  window.open("https://www.google.com/search?q=" + encodeURIComponent(q), "_blank");
+  window.open(
+    "https://www.google.com/search?q=" + encodeURIComponent(q),
+    "_blank"
+  );
   search.value = "";
 }
 
 function loadHistory() {
-  const history = JSON.parse(localStorage.getItem("history") || "[]");
+  const h = JSON.parse(localStorage.getItem("history") || "[]");
   historyList.innerHTML = "";
-
-  history.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "history-item";
-    div.textContent = item.q + " – " + item.time;
-    div.onclick = () =>
-      window.open("https://www.google.com/search?q=" + encodeURIComponent(item.q), "_blank");
-    historyList.appendChild(div);
+  h.forEach(i => {
+    const d = document.createElement("div");
+    d.className = "history-item";
+    d.textContent = i.q + " – " + i.t;
+    d.onclick = () =>
+      window.open("https://www.google.com/search?q=" + encodeURIComponent(i.q), "_blank");
+    historyList.appendChild(d);
   });
 }
 
@@ -229,28 +288,28 @@ function loadUrls() {
   const pages = JSON.parse(localStorage.getItem("pages") || "[]");
   grid.innerHTML = "";
   pages.forEach((p, i) => {
-    const tile = document.createElement("div");
-    tile.className = "tile";
-    tile.onclick = () => window.open(p.url, "_blank");
+    const t = document.createElement("div");
+    t.className = "tile";
+    t.onclick = () => window.open(p.url, "_blank");
 
     const img = document.createElement("img");
     img.src = p.icon || "https://www.google.com/s2/favicons?domain=" + p.url;
 
-    const span = document.createElement("span");
-    span.textContent = new URL(p.url).hostname;
+    const s = document.createElement("span");
+    s.textContent = new URL(p.url).hostname;
 
-    const del = document.createElement("div");
-    del.textContent = "✕";
-    del.className = "delete";
-    del.onclick = e => {
+    const d = document.createElement("div");
+    d.className = "delete";
+    d.textContent = "✕";
+    d.onclick = e => {
       e.stopPropagation();
       pages.splice(i,1);
       localStorage.setItem("pages", JSON.stringify(pages));
       loadUrls();
     };
 
-    tile.append(del,img,span);
-    grid.appendChild(tile);
+    t.append(d,img,s);
+    grid.appendChild(t);
   });
 }
 
@@ -258,16 +317,16 @@ function addUrl() {
   const url = urlInput.value.trim();
   if (!url.startsWith("http")) return;
 
-  const reader = new FileReader();
-  reader.onload = () => {
+  const r = new FileReader();
+  r.onload = () => {
     const pages = JSON.parse(localStorage.getItem("pages") || "[]");
-    pages.push({ url, icon: iconInput.files[0] ? reader.result : null });
+    pages.push({ url, icon: iconInput.files[0] ? r.result : null });
     localStorage.setItem("pages", JSON.stringify(pages));
     urlInput.value = "";
     iconInput.value = "";
     loadUrls();
   };
-  iconInput.files[0] ? reader.readAsDataURL(iconInput.files[0]) : reader.onload();
+  iconInput.files[0] ? r.readAsDataURL(iconInput.files[0]) : r.onload();
 }
 
 /* Hintergrund */
