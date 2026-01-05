@@ -9,7 +9,7 @@
 html,body{
   margin:0;
   padding:0;
-  height:100%;
+  min-height:100%;
   background:#111;
   font-family:Arial,sans-serif;
   color:#fff;
@@ -64,7 +64,6 @@ li{
   margin-top:6px;
   display:flex;
   align-items:center;
-  justify-content:space-between;
   gap:8px;
 }
 
@@ -73,6 +72,13 @@ a{color:#90caf9;text-decoration:none;flex:1}
 .delete{
   background:#e53935;
   padding:4px 8px;
+  border-radius:4px;
+}
+
+.icon{
+  width:22px;
+  height:22px;
+  object-fit:cover;
   border-radius:4px;
 }
 
@@ -86,6 +92,7 @@ a{color:#90caf9;text-decoration:none;flex:1}
   cursor:pointer;
   z-index:1002;
 }
+
 .hamburger span{
   position:absolute;
   width:100%;
@@ -96,6 +103,7 @@ a{color:#90caf9;text-decoration:none;flex:1}
 .hamburger span:nth-child(1){top:0}
 .hamburger span:nth-child(2){top:9px}
 .hamburger span:nth-child(3){top:18px}
+
 .hamburger.open span:nth-child(1){top:9px;transform:rotate(45deg)}
 .hamburger.open span:nth-child(2){opacity:0}
 .hamburger.open span:nth-child(3){top:9px;transform:rotate(-45deg)}
@@ -127,12 +135,6 @@ a{color:#90caf9;text-decoration:none;flex:1}
   z-index:1000;
 }
 .backdrop.show{display:block}
-
-.icon{
-  width:20px;
-  height:20px;
-  object-fit:contain;
-}
 </style>
 </head>
 
@@ -147,6 +149,7 @@ a{color:#90caf9;text-decoration:none;flex:1}
   <button onclick="showPage('history')">Verlauf</button>
   <button onclick="showPage('bg')">Hintergrund</button>
 </div>
+
 <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
 
 <div class="overlay">
@@ -156,14 +159,14 @@ a{color:#90caf9;text-decoration:none;flex:1}
 <div id="home">
   <div class="box">
     <input id="search" placeholder="Mit deiner 1. Suche beginnen"
-      onkeydown="if(event.key==='Enter')search()">
+      onkeydown="if(event.key==='Enter')doSearch()">
   </div>
 
   <div class="box">
     <h2>Eigene Seiten</h2>
     <input id="name" placeholder="Name">
     <input id="url" placeholder="https://">
-    <input id="icon" placeholder="Icon URL (optional)">
+    <input id="iconFile" type="file" accept="image/*">
     <button onclick="addSite()">Hinzufügen</button>
     <ul id="sites"></ul>
   </div>
@@ -185,10 +188,10 @@ a{color:#90caf9;text-decoration:none;flex:1}
 </div>
 
 <script>
-const menu=menu=document.getElementById("menu");
-const backdrop=document.getElementById("backdrop");
-const hamburger=document.querySelector(".hamburger");
-const title=document.getElementById("title");
+const menu = document.getElementById("menu");
+const backdrop = document.getElementById("backdrop");
+const hamburger = document.querySelector(".hamburger");
+const title = document.getElementById("title");
 
 const pages={
   home:document.getElementById("home"),
@@ -213,7 +216,8 @@ function showPage(p){
   if(p==="history") loadHistory();
 }
 
-function search(){
+/* Suche */
+function doSearch(){
   const q=search.value.trim();
   if(!q)return;
   const h=JSON.parse(localStorage.getItem("history")||"[]");
@@ -222,29 +226,44 @@ function search(){
   window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
 }
 
+/* Verlauf */
 function loadHistory(){
   const box=document.getElementById("historyList");
   const h=JSON.parse(localStorage.getItem("history")||"[]");
-  if(!h.length){box.innerHTML="Noch kein Verlauf.";return}
-  box.innerHTML="";
-  h.reverse().forEach((e,i)=>{
-    box.innerHTML+=`<li>${e.q}<button class="delete" onclick="delHist(${i})">X</button></li>`;
+  box.innerHTML=h.length?"":"Noch kein Verlauf.";
+  h.slice().reverse().forEach((e,i)=>{
+    box.innerHTML+=`<li>${e.q}<button class="delete" onclick="delHist(${h.length-1-i})">X</button></li>`;
   });
 }
 function delHist(i){
   const h=JSON.parse(localStorage.getItem("history")||"[]");
-  h.splice(h.length-1-i,1);
+  h.splice(i,1);
   localStorage.setItem("history",JSON.stringify(h));
   loadHistory();
 }
 
+/* Eigene Seiten */
 function addSite(){
+  const nameV=name.value.trim();
+  const urlV=url.value.trim();
+  if(!nameV||!urlV)return;
+
+  const file=iconFile.files[0];
+  if(file){
+    const r=new FileReader();
+    r.onload=()=>saveSite(nameV,urlV,r.result);
+    r.readAsDataURL(file);
+  }else saveSite(nameV,urlV,"");
+}
+
+function saveSite(n,u,i){
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  s.push({n:name.value,u:url.value,i:icon.value});
+  s.push({n,u,i});
   localStorage.setItem("sites",JSON.stringify(s));
-  name.value=url.value=icon.value="";
+  name.value=url.value=iconFile.value="";
   loadSites();
 }
+
 function loadSites(){
   sites.innerHTML="";
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
@@ -257,6 +276,7 @@ function loadSites(){
     </li>`;
   });
 }
+
 function delSite(i){
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
   s.splice(i,1);
@@ -264,9 +284,13 @@ function delSite(i){
   loadSites();
 }
 
+/* Hintergrund */
 function setBg(e){
   const r=new FileReader();
-  r.onload=()=>{document.body.style.backgroundImage=`url(${r.result})`;localStorage.setItem("bg",r.result)};
+  r.onload=()=>{
+    document.body.style.backgroundImage=`url(${r.result})`;
+    localStorage.setItem("bg",r.result);
+  };
   r.readAsDataURL(e.target.files[0]);
 }
 function resetBg(){
