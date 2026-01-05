@@ -15,18 +15,15 @@ html,body{
   color:#fff;
   overflow-x:hidden;
 }
-
 body{
   background-size:cover;
   background-position:center;
 }
-
 .overlay{
   min-height:100vh;
   padding:80px 20px 20px;
   background:rgba(0,0,0,.6);
 }
-
 h1{text-align:center;margin:0 0 25px}
 h2{margin:0 0 10px}
 .hidden{display:none}
@@ -166,8 +163,8 @@ input[type="file"]{display:none}
 <!-- START -->
 <div id="home">
   <div class="box">
-    <input id="searchInput" placeholder="Mit deiner 1. Suche beginnen"
-      onkeydown="if(event.key==='Enter')doSearch()">
+    <input id="searchInput" placeholder="Mit deiner 1. Suche beginnen">
+    <button onclick="doSearch()">Suchen</button>
   </div>
 
   <div class="box">
@@ -176,7 +173,7 @@ input[type="file"]{display:none}
     <input id="siteUrl" placeholder="https://">
 
     <label class="fileBtn">
-      Icon auswählen (optional)
+      Icon auswählen
       <input id="iconFile" type="file" accept="image/*">
     </label>
 
@@ -232,7 +229,7 @@ function showPage(p){
   if(p==="history") loadHistory();
 }
 
-/* GOOGLE SUCHE – FIX */
+/* Suche */
 function doSearch(){
   const q=document.getElementById("searchInput").value.trim();
   if(!q)return;
@@ -247,17 +244,17 @@ function doSearch(){
   );
 }
 
-/* VERLAUF */
+/* Verlauf */
 function loadHistory(){
   const box=document.getElementById("historyList");
   const h=JSON.parse(localStorage.getItem("history")||"[]");
   box.innerHTML=h.length?"":"Noch kein Verlauf.";
-  h.slice().reverse().forEach((e,i)=>{
+  h.slice().reverse().forEach(e=>{
     box.innerHTML+=`<li>${e.q}</li>`;
   });
 }
 
-/* EIGENE SEITEN – FIX */
+/* Eigene Seiten */
 function addSite(){
   const n=document.getElementById("siteName").value.trim();
   const u=document.getElementById("siteUrl").value.trim();
@@ -287,16 +284,24 @@ function loadSites(){
   const ul=document.getElementById("sites");
   ul.innerHTML="";
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  s.forEach(e=>{
+  s.forEach((e,idx)=>{
     ul.innerHTML+=`
       <li>
         ${e.i?`<img class="icon" src="${e.i}">`:""}
         <a href="${e.u}" target="_blank">${e.n}</a>
+        <button class="delete" onclick="deleteSite(${idx})">X</button>
       </li>`;
   });
 }
 
-/* HINTERGRUND */
+function deleteSite(i){
+  const s=JSON.parse(localStorage.getItem("sites")||"[]");
+  s.splice(i,1);
+  localStorage.setItem("sites",JSON.stringify(s));
+  loadSites();
+}
+
+/* Hintergrund */
 function setBg(e){
   const r=new FileReader();
   r.onload=()=>{
